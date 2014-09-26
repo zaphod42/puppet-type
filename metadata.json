@@ -8,7 +8,6 @@
   "project_page": "https://github.com/zaphod42/puppet-type",
   "issues_url": "https://github.com/zaphod42/puppet-type/issues",
   "dependencies": [
-    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
   ]
 }
 
