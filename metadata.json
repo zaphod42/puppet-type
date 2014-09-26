@@ -1,0 +1,14 @@
+{
+  "name": "zaphod42-type",
+  "version": "0.1.0",
+  "author": "zaphod42",
+  "summary": "Type check puppet manifests",
+  "license": "Apache 2.0",
+  "source": "https://github.com/zaphod42/puppet-type",
+  "project_page": "https://github.com/zaphod42/puppet-type",
+  "issues_url": "https://github.com/zaphod42/puppet-type/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ]
+}
+
