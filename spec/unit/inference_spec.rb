@@ -20,6 +20,7 @@ describe 'Type Inference' do
 
     "$a and $b" => "Boolean",
     "$a or $b" => "Boolean",
+    "!$a" => "Boolean",
 
     "1 + 1" => "Integer",
     "1 * 1" => "Integer",

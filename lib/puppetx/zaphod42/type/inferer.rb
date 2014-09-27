@@ -136,6 +136,11 @@ class Puppetx::Zaphod42::Type::Inferer
     @type_factory.boolean
   end
 
+  def infer_NotExpression(ast)
+    infer(ast.expr)
+    @type_factory.boolean
+  end
+
   def infer_AccessExpression(ast)
     left = infer(ast.left_expr)
     unpacked = if left.is_a?(Puppet::Pops::Types::POptionalType)
