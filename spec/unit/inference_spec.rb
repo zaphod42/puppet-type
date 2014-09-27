@@ -14,6 +14,8 @@ describe 'Type Inference' do
     "\"string\"" => "String",
     "\"pre${var}post\"" => "String",
 
+    "(1)" => "Integer[1, 1]",
+
     "$a =~ /re/" => "Boolean",
 
     "$a and $b" => "Boolean",

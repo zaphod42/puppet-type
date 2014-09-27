@@ -84,7 +84,7 @@ class Puppetx::Zaphod42::Type::Inferer
     @type_factory.string
   end
 
-  def infer_TextExpression(ast)
+  def infer_UnaryExpression(ast)
     infer(ast.expr)
   end
 
