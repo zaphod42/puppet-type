@@ -29,6 +29,12 @@ describe 'Type Inference' do
     "1 + 1.0" => "Float",
     "1.0 + 1" => "Float",
 
+    "$a + $b" => "Variant[Hash, Array, Integer, Float]",
+
+    "{} + {}" => "Hash",
+
+    "[] + []" => "Array",
+
     "{}" => "Hash",
     "{ 1 => 1 }" => "Hash[Integer[1, 1], Integer[1, 1]]",
     "{ 1 => 1, 2 => 2 }" => "Hash[Integer[1, 2], Integer[1, 2]]",

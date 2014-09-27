@@ -92,10 +92,25 @@ class Puppetx::Zaphod42::Type::Inferer
     left = infer(ast.left_expr)
     right = infer(ast.right_expr)
 
-    if left.class == Puppet::Pops::Types::PFloatType || right.class == Puppet::Pops::Types::PFloatType
+    case left
+    when Puppet::Pops::Types::PIntegerType
+      if right.class == Puppet::Pops::Types::PFloatType
+        @type_factory.float
+      else
+        @type_factory.integer
+      end
+    when Puppet::Pops::Types::PFloatType
       @type_factory.float
+    when Puppet::Pops::Types::PHashType
+      @type_factory.hash_of_data
+    when Puppet::Pops::Types::PArrayType
+      @type_factory.array_of_data
     else
-      @type_factory.integer
+      @type_factory.variant(
+        @type_factory.hash_of_data,
+        @type_factory.array_of_data,
+        @type_factory.float,
+        @type_factory.integer)
     end
   end
 
