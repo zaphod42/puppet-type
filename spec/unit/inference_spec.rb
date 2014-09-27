@@ -12,6 +12,7 @@ describe 'Type Inference' do
     "'string'" => "String",
     "string" => "String",
     "\"string\"" => "String",
+    "\"pre${var}post\"" => "String",
 
     "$a =~ /re/" => "Boolean",
 

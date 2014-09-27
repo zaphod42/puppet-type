@@ -38,6 +38,10 @@ class Puppetx::Zaphod42::Type::Inferer
     float
   end
 
+  def infer_LiteralRegularExpression(ast)
+    @type_factory.regexp(ast.pattern)
+  end
+
   def infer_LiteralString(ast)
     @type_factory.string
   end
@@ -70,6 +74,18 @@ class Puppetx::Zaphod42::Type::Inferer
     array.size_type = @type_factory.integer
     array.size_type.from = array.size_type.to = value_types.length
     array
+  end
+
+  def infer_ConcatenatedString(ast)
+    ast.segments.each do |segment|
+      infer(segment)
+    end
+
+    @type_factory.string
+  end
+
+  def infer_TextExpression(ast)
+    infer(ast.expr)
   end
 
   def infer_ArithmeticExpression(ast)
@@ -118,10 +134,6 @@ class Puppetx::Zaphod42::Type::Inferer
     infer(ast.left_expr) # assert?
     infer(ast.right_expr) # assert?
     @type_factory.boolean
-  end
-
-  def infer_LiteralRegularExpression(ast)
-    @type_factory.regexp
   end
 
   def infer_AccessExpression(ast)
