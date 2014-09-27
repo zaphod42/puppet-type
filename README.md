@@ -25,11 +25,15 @@ This requires puppet 3.7 or greater.
 
 ## Usage
 
+```
 > puppet type infer '1'
 Integer[1, 1]
+```
 
+```
 > puppet type infer '{ a => 1 }'
 Hash[String, Integer[1, 1]]
+```
 
 ## Limitations
 
