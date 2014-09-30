@@ -10,7 +10,7 @@ module Puppetx::Zaphod42
       type_inferer = Puppetx::Zaphod42::Type::Inferer.new
 
       ast = parser.parse_string(code_string)
-      type_inferer.infer(ast.model)
+      type_inferer.infer(ast.model).type
     end
   end
 end
