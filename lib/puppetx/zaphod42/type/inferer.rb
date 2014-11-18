@@ -1,9 +1,25 @@
 class Puppetx::Zaphod42::Type::Inferer
   class Context
     attr_reader :type
+    attr_reader :constraints
+    attr_reader :free
 
     def initialize(type)
       @type = type
+      @constraints = {}
+      @free = []
+    end
+
+    def self.free_variable(name, type)
+      c = new(type)
+      c.free << name
+      c
+    end
+
+    def self.compose(ctxs, new_type)
+      c = new(new_type)
+      ctxs.each { |ctx| c.free.concat(ctx.free) }
+      c
     end
   end
 
@@ -99,58 +115,61 @@ class Puppetx::Zaphod42::Type::Inferer
   def infer_ArithmeticExpression(ast)
     left = infer(ast.left_expr)
     right = infer(ast.right_expr)
-
-    Context.new(case left.type
-    when Puppet::Pops::Types::PIntegerType
-      if right.type.is_a?(Puppet::Pops::Types::PFloatType)
-        @type_factory.float
-      else
-        @type_factory.integer
-      end
-    when Puppet::Pops::Types::PFloatType
-      @type_factory.float
-    when Puppet::Pops::Types::PHashType
-      @type_factory.hash_of_data
-    when Puppet::Pops::Types::PArrayType
-      @type_factory.array_of_data
-    else
-      @type_factory.variant(
-        @type_factory.hash_of_data,
-        @type_factory.array_of_data,
-        @type_factory.float,
-        @type_factory.integer)
-    end)
+    type = case left.type
+           when Puppet::Pops::Types::PIntegerType
+             if right.type.is_a?(Puppet::Pops::Types::PFloatType)
+               @type_factory.float
+             else
+               @type_factory.integer
+             end
+           when Puppet::Pops::Types::PFloatType
+             @type_factory.float
+           when Puppet::Pops::Types::PHashType
+             @type_factory.hash_of_data
+           when Puppet::Pops::Types::PArrayType
+             @type_factory.array_of_data
+           else
+             @type_factory.variant(
+               @type_factory.hash_of_data,
+               @type_factory.array_of_data,
+               @type_factory.float,
+               @type_factory.integer)
+           end
+    Context.compose([left, right], type)
   end
 
   def infer_AssignmentExpression(ast)
-    type = infer(ast.right_expr).type
-    @variables[ast.left_expr.expr.value] = type
-    Context.new(type)
+    assignment_context = infer(ast.right_expr)
+    @variables[ast.left_expr.expr.value] = assignment_context.type
+    Context.compose([assignment_context], type)
   end
 
   def infer_IfExpression(ast)
-    Context.new(covering_type(infer(ast.then_expr).type, infer(ast.else_expr).type))
+    then_context = infer(ast.then_expr)
+    else_context = infer(ast.else_expr)
+    Context.compose([then_context, else_context], covering_type(then_context.type, else_context.type))
   end
 
   def infer_VariableExpression(ast)
     name = ast.expr.value
-    Context.new(if @variables.include?(name)
+    type = if @variables.include?(name)
       @variables[name]
     else
       @type_factory.undef
-    end)
+    end
+    Context.free_variable(name, type)
   end
 
   def infer_MatchExpression(ast)
-    infer(ast.left_expr) # assert String
-    infer(ast.right_expr) # assert Pattern
-    Context.new(@type_factory.boolean)
+    left_context = infer(ast.left_expr) # assert String
+    right_context = infer(ast.right_expr) # assert Pattern
+    Context.compose([left_context, right_context], @type_factory.boolean)
   end
 
   def infer_OrExpression(ast)
-    infer(ast.left_expr) # assert?
-    infer(ast.right_expr) # assert?
-    Context.new(@type_factory.boolean)
+    left_context = infer(ast.left_expr) # assert?
+    right_context = infer(ast.right_expr) # assert?
+    Context.compose([left_context, right_context], @type_factory.boolean)
   end
 
   def infer_AndExpression(ast)

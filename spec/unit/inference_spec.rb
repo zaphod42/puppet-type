@@ -31,6 +31,10 @@ describe 'Type Inference' do
 
     "$a + $b" => "Variant[Hash, Array, Integer, Float]",
 
+    "$a = $x + 1; $x" => "Variant[Integer, Float]",
+    "$a = $x + {}; $x" => "Hash",
+    "$a = $x + []; $x" => "Array",
+
     "{} + {}" => "Hash",
 
     "[] + []" => "Array",
@@ -69,7 +73,9 @@ describe 'Type Inference' do
     "define a(String $x) {} a { hi: x => 1 }" => /expected String got Integer/,
     "class a(String $x) {} class { a: x => 1 }" => /expected String got Integer/,
 
-    "define a(String $x) {} $y = 1; a { hi: x => $y }" => /expected String got Integer/
+    "define a(String $x) {} $y = 1; a { hi: x => $y }" => /expected String got Integer/,
+
+    "$a = $x + 1; $b = $x + {}" => /\$x has an infered type of Variant[Integer, Float], but is being used as Hash/,
   }.each do |example, expectation|
     it "infers that <#{example}> contains a type error of <#{expectation}>" do
       expect do
